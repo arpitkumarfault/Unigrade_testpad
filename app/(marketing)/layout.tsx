@@ -1,9 +1,9 @@
 // src/app/layout.tsx
 import type { Metadata } from "next"
-import "./globals.css"
-
+import { ThemeProvider } from "@/components/Theme/ThemeProvider"
+import Navbar from "@/components/Navbar/Navbar"
 export const metadata: Metadata = {
-  title: "Unigrade",
+  title: "Unigrade ",
   description: "Smart Online Examination Platform",
 }
 
@@ -14,7 +14,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+        <Navbar/>
+        {children}
+
+        </ThemeProvider>
+        
+        </body>
     </html>
   )
 }

@@ -1,0 +1,71 @@
+/* Semantic color tokens with OKLCH for perceptual uniformity */
+:root {
+  /* Brand (light theme) */
+  --color-primary:  oklch(63% 0.12 180); /* teal/emerald: trust, security */
+  --color-primary-contrast: white;
+
+  --color-secondary: oklch(61% 0.14 300); /* blue‑violet: insights/analytics */
+  --color-secondary-contrast: white;
+
+  --color-tertiary:  oklch(68% 0.09 50);  /* amber/gold: highlights/CTAs alt */
+  --color-tertiary-contrast: oklch(23% 0.03 255);
+
+  /* Neutrals (light) */
+  --color-bg:        white;
+  --color-surface:   oklch(96% 0.01 255);
+  --color-text:      oklch(23% 0.03 255);
+  --color-text-muted:oklch(44% 0.05 255);
+  --color-border:    oklch(92% 0.01 255);
+
+  /* States (optional, commonly paired) */
+  --color-success:   oklch(63% 0.12 150);
+  --color-warning:   oklch(78% 0.15 90);
+  --color-danger:    oklch(58% 0.20 30);
+}
+
+/* Dark theme: activate by adding class="dark" to <html> */
+:root.dark {
+  --color-primary:  oklch(72% 0.10 180); /* slightly lighter for dark surfaces */
+  --color-primary-contrast: oklch(23% 0.03 255);
+
+  --color-secondary: oklch(68% 0.12 300);
+  --color-secondary-contrast: oklch(23% 0.03 255);
+
+  --color-tertiary:  oklch(75% 0.09 50);
+  --color-tertiary-contrast: oklch(23% 0.03 255);
+
+  --color-bg:        oklch(22% 0.04 255);
+  --color-surface:   oklch(26% 0.04 255);
+  --color-text:      oklch(96% 0.01 255);
+  --color-text-muted:oklch(74% 0.02 255);
+  --color-border:    oklch(36% 0.05 255);
+
+  --color-success:   oklch(70% 0.10 150);
+  --color-warning:   oklch(80% 0.13 90);
+  --color-danger:    oklch(64% 0.17 30);
+}
+
+/* Utility classes (optional) to simplify usage in components */
+.theme-bg      { background-color: var(--color-bg); color: var(--color-text); }
+.theme-surface { background-color: var(--color-surface); color: var(--color-text); }
+.theme-border  { border-color: var(--color-border); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500;
+}
+
+.btn-primary {
+  background: var(--color-primary); color: var(--color-primary-contrast);
+}
+.btn-primary:hover { filter: saturate(1.05) brightness(0.98); }
+
+.btn-secondary {
+  background: var(--color-secondary); color: var(--color-secondary-contrast);
+}
+.btn-secondary:hover { filter: saturate(1.05) brightness(0.98); }
+
+.btn-tertiary {
+  background: var(--color-tertiary); color: var(--color-tertiary-contrast);
+}
+.btn-tertiary:hover { filter: saturate(1.05) brightness(0.98); }
