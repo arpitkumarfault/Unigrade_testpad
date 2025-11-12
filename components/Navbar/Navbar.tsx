@@ -141,7 +141,7 @@ function NavLinks() {
       </Link>
       <Link
         className="ml-2 inline-flex items-center rounded-md bg-(--color-primary) px-3 py-2 text-sm font-medium text-(--color-primary-contrast) hover:saturate-110 hover:brightness-95"
-        href="/register"
+        href="/universityregister"
       >
         Register
       </Link>

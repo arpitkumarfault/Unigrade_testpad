@@ -10,7 +10,7 @@ import '././../../components/Theme/styles/theme.css'
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-(--color-bg) text-(--color-text)">
-    
+
 
       <Hero />
       <TrustBar />

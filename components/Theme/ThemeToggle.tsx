@@ -1,11 +1,10 @@
+// components/ThemeToggle.tsx
 "use client";
-
 import { useTheme } from "./ThemeProvider";
 import './styles/theme.css'
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-
   return (
     <div className="inline-flex items-center gap-2">
       <label className="text-sm text-(--color-text-muted)">Theme</label>

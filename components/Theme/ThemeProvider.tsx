@@ -1,3 +1,4 @@
+// components/ThemeProvider.tsx
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -13,7 +14,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return (localStorage.getItem("theme") as Theme) || "system";
   });
 
-  // Apply theme to <html> using class "dark" for dark mode
   useEffect(() => {
     const root = document.documentElement;
     const apply = (t: Theme) => {
@@ -21,9 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-      const effective =
-        t === "system" ? (systemPrefersDark ? "dark" : "light") : t;
-
+      const effective = t === "system" ? (systemPrefersDark ? "dark" : "light") : t;
       if (effective === "dark") root.classList.add("dark");
       else root.classList.remove("dark");
     };
@@ -31,7 +29,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     apply(theme);
     localStorage.setItem("theme", theme);
 
-    // Sync on system changes when using "system"
     if (theme === "system" && window.matchMedia) {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const listener = () => apply("system");
@@ -41,7 +38,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const value = useMemo(() => ({ theme, setTheme }), [theme]);
-
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

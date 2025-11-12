@@ -1,10 +1,12 @@
-// app/login/page.tsx
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import  { AxiosError, isAxiosError } from "axios";
 import Link from "next/link";
-import "../../../components/Theme/styles/theme.css"
-
+import "@/components/Theme/styles/theme.css"
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 function ThemeToggleFab() {
     const [isDark, setIsDark] = useState(false);
     useEffect(() => setIsDark(document.documentElement.classList.contains("dark")), []);
@@ -54,25 +56,71 @@ function Field({
 export default function UniversityLoginPage() {
     const uniId = useId();
     const pwdId = useId();
-
+    const router = useRouter()
+    const [universityCode, setUniversityCode] = useState('')
+    const [password, setPassword] = useState('')
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [showPwd, setShowPwd] = useState(false);
     const [autoHide, setAutoHide] = useState<NodeJS.Timeout | null>(null);
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        const universityId = String(data.get("universityId") || "");
-        const password = String(data.get("password") || "");
-        const errs: Record<string, string> = {};
-        if (!universityId.trim()) errs.universityId = "Please enter your University ID.";
-        if (!password) errs.password = "Please enter your password.";
-        setErrors(errs);
-        if (Object.keys(errs).length === 0) {
-            // TODO: call login API
-            alert("Logging in...");
-        }
-    };
+
+
+type ApiError = {
+  message?: string;
+  error?: string;
+  errors?: string[]; 
+};
+
+const handleLoginSubmission = async (e:any) => {
+    e.preventDefault();
+
+    
+    try {
+        const response = await axios.post(
+            "/api/university/login",
+            { universityCode, password },
+            {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+                validateStatus: (status) => status >= 200 && status < 300,
+            }
+        )
+        
+    const successMsg = response.data?.message || "Login successfully";
+    toast.success(successMsg);
+    setTimeout(() => {
+      router.push("/university/dashboard");
+    }, 800);
+  } catch (e) {
+    if (isAxiosError(e)) {
+      const err = e as AxiosError<ApiError>;
+      const apiMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        (Array.isArray(err.response?.data?.errors) &&
+          err.response?.data?.errors[0]) ||
+        undefined;
+
+      if (err.response) {
+        const fallback =
+          err.response.status === 401
+            ? "Invalid credentials"
+            : err.response.status === 403
+            ? "Access denied"
+            : "Something went wrong";
+        toast.error(apiMsg || fallback);
+      } else if (err.request) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error(err.message || "Unexpected error occurred.");
+      }
+    } else {
+      const unknownMsg =
+        (e as Error)?.message || "Unexpected error occurred.";
+      toast.error(unknownMsg);
+    }
+  }
+};
 
     const togglePassword = () => {
         setShowPwd((prev) => {
@@ -94,7 +142,6 @@ export default function UniversityLoginPage() {
             <ThemeToggleFab />
 
             <section className="mx-auto grid max-w-7xl grid-cols-1 lg:grid-cols-2">
-                {/* Left: form */}
                 <div className="px-4 sm:px-6 lg:px-10 py-12 sm:py-16">
                     <div className="mx-auto w-full max-w-md">
                         <p className="inline-flex items-center rounded-full bg-(--color-surface) px-3 py-1 text-(--color-primary) ring-1 ring-(--color-border) text-sm">
@@ -107,17 +154,20 @@ export default function UniversityLoginPage() {
                             Enter your University ID and password to continue.
                         </p>
 
-                        <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
+                        <form onSubmit={handleLoginSubmission} noValidate className="mt-8 space-y-5">
                             <Field
                                 id={uniId}
                                 label="University ID"
                                 hint="Example: STA1234"
                                 error={errors.universityId}
+
                             >
                                 <input
                                     id={uniId}
                                     name="universityId"
                                     inputMode="text"
+                                    value={universityCode}
+                                    onChange={(e) => { setUniversityCode(e.target.value) }}
                                     autoComplete="username"
                                     className={[
                                         "w-full rounded-md border bg-(--color-surface) px-3 py-2",
@@ -138,6 +188,8 @@ export default function UniversityLoginPage() {
                                         id={pwdId}
                                         name="password"
                                         type={showPwd ? "text" : "password"}
+                                        value={password}
+                                        onChange={(e) => { setPassword(e.target.value) }}
                                         autoComplete="current-password"
                                         className="w-full bg-transparent px-3 py-2 pr-10 text-(--color-text) placeholder:text-(--color-text-muted) focus-visible:outline-2 focus-visible:outline-(--color-primary)"
                                         placeholder="••••••••"
@@ -173,7 +225,7 @@ export default function UniversityLoginPage() {
 
                             <p className="text-sm text-(--color-text-muted)">
                                 New to TestPad?{" "}
-                                <Link href="/register" className="text-(--color-primary) underline underline-offset-4 hover:opacity-90">
+                                <Link href="/universityregister" className="text-(--color-primary) underline underline-offset-4 hover:opacity-90">
                                     Create an account
                                 </Link>
                             </p>
@@ -181,7 +233,6 @@ export default function UniversityLoginPage() {
                     </div>
                 </div>
 
-                {/* Right: brand panel */}
                 <aside className="hidden lg:block border-l border-(--color-border)">
                     <div className="h-full p-10 bg-(--color-surface)">
                         <div className="mx-auto max-w-md space-y-6">
