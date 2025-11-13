@@ -68,14 +68,13 @@ export default function RegisterPage() {
     const addrId = useId();
     const passId = useId();
     const pass2Id = useId();
-  const router = useRouter();
+    const router = useRouter();
     const [universityName, setUniversityName] = useState("");
     const [universityEmail, setUniversityEmail] = useState("");
     const [contactNumber, setContactNumber] = useState("");
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
-
     const [showPwd, setShowPwd] = useState(false);
     const [showPwd2, setShowPwd2] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -97,17 +96,17 @@ export default function RegisterPage() {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!validate()) {
             toast.error("Please fix the highlighted fields.");
             return;
         }
-        
+
         let tId: string | undefined;
         try {
             setSubmitting(true);
             tId = toast.loading("Creating university...");
-            
+
             const res = await axios.post(
                 "/api/university/register",
                 { universityName, universityEmail, contactNumber, address, password },
@@ -118,17 +117,16 @@ export default function RegisterPage() {
                     withCredentials: true
                 }
             );
-            
+
             const code = res?.data?.data?.universityCode;
             const msg = code ? `Registered successfully. Code: ${code}` : "Registered successfully.";
             toast.success(msg, { id: tId });
-            
+
             // Optional reset
             setUniversityName(""); setUniversityEmail(""); setContactNumber("");
             setAddress(""); setPassword(""); setConfirm("");
-            
+
             setTimeout(() => {
-                
                 router.push("/universitylogin");
             }, 2000)
         } catch (err: any) {

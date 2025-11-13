@@ -11,8 +11,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { universityCode, password } = body || {};
 
-    
-
     if (!universityCode || !password) {
       return NextResponse.json(
         { message: "University code and password are required.", success: false },
