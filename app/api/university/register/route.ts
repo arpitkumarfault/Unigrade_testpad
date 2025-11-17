@@ -4,7 +4,8 @@ import University from "@/models/university/universityModel";
 import bcrypt from "bcrypt";
 import dbConnect from "@/database/dbConnect";
 import { customAlphabet } from "nanoid";
-import sendUniversityWelcome from "@/helpers/mailSender";
+// import sendUniversityWelcome from "@/helpers/mailSender";
+import sendUniversityWelcome from "@/helpers/university/mailSender";
 
 dbConnect();
 

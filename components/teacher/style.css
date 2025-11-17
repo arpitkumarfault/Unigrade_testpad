@@ -1,0 +1,107 @@
+/* Right column base */
+.welcome-aside {
+  position: relative;
+  min-height: 100%;
+  background: oklch(22% 0.02 255);
+  overflow: hidden;
+}
+
+/* Inner layout */
+.welcome-aside-inner {
+  position: relative;
+  inset: 0;
+  height: 100%;
+}
+
+/* Content wrapper */
+.welcome-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: grid;
+  align-content: flex-start;
+  padding: 3rem clamp(1.25rem, 4vw, 3rem);
+  color: var(--color-primary-contrast);
+}
+
+/* Frosted card over image */
+.welcome-card {
+  max-width: 720px;
+  background: color-mix(in oklch, var(--color-surface), transparent 50%);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklch, var(--color-border), transparent 10%);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 12px 28px color-mix(in oklch, var(--color-text), transparent 92%);
+}
+
+/* Text elements */
+.welcome-kicker {
+  margin: 0;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+  color: var(--color-tertiary-contrast);
+  text-shadow: 0 1px 1px color-mix(in oklch, black, transparent 60%);
+}
+
+/* Theme-aware heading color and glow:
+   - Light theme: dark, high-contrast.
+   - Dark theme: light blue (derived from secondary) with subtle glow. */
+.welcome-heading {
+  margin: 6px 0 10px;
+  font-size: clamp(30px, 4.8vw, 48px);
+  line-height: 1.12;
+  color: oklch(23% 0.03 255);
+  text-shadow:
+    0 0 1px color-mix(in oklch, black, transparent 35%),
+    0 2px 6px color-mix(in oklch, black, transparent 62%),
+    0 0 10px color-mix(in oklch, var(--color-primary), white 65%),
+    0 0 18px color-mix(in oklch, var(--color-secondary), white 75%);
+  -webkit-text-stroke: 0.4px color-mix(in oklch, black, transparent 40%);
+}
+:root.dark .welcome-heading {
+  color: color-mix(in oklch, var(--color-secondary-contrast), var(--color-secondary) 18%);
+  text-shadow:
+    0 0 1px color-mix(in oklch, black, transparent 35%),
+    0 2px 6px color-mix(in oklch, black, transparent 62%),
+    0 0 12px color-mix(in oklch, var(--color-secondary), white 70%),
+    0 0 22px color-mix(in oklch, var(--color-primary), white 75%);
+  -webkit-text-stroke: 0.35px color-mix(in oklch, black, transparent 45%);
+}
+
+.welcome-sub {
+  margin: 0;
+  color: var(--color-primary-contrast);
+  text-shadow:
+    0 1px 2px color-mix(in oklch, black, transparent 55%),
+    0 0 8px color-mix(in oklch, var(--color-primary), white 82%);
+}
+
+/* Floating theme toggle button */
+.ug-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 10px 24px color-mix(in oklch, var(--color-text), transparent 90%);
+}
+.ug-fab:hover { filter: saturate(1.05) brightness(0.98); }
+.ug-fab:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--color-primary), transparent 30%);
+  outline-offset: 2px;
+}
+
+/* Responsive split */
+@media (max-width: 960px) {
+  .register-grid { grid-template-columns: 1fr; }
+  .register-grid > aside { order: 2; min-height: 40vh; }
+}

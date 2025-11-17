@@ -10,7 +10,7 @@ const dbConnect = async () => {
       })
     }
 
-    await mongoose.connect(process.env.MONGO_URI , {})
+    await mongoose.connect(process.env.MONGO_URI, {})
 
     return NextResponse.json({
       message: 'Successfully connected to the database ✅✅',

@@ -69,3 +69,46 @@
   background: var(--color-tertiary); color: var(--color-tertiary-contrast);
 }
 .btn-tertiary:hover { filter: saturate(1.05) brightness(0.98); }
+
+/* Place near your component styles */
+.card { background: var(--color-surface); color: var(--color-text); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--color-border), transparent 46%);
+}
+
+/* Progress bar that respects tokens */
+.progress {
+  flex: 1;
+  height: 8px;
+  background: color-mix(in oklch, var(--color-text), transparent 90%);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-danger), var(--color-warning), var(--color-success));
+}
+
+/* Ensure responsive split behavior */
+@media (max-width: 960px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
+  .register-grid > aside {
+    order: 2; /* keep form first on mobile */
+    min-height: 40vh;
+  }
+}
+
+/* Optional: soften overlay transitions and ensure text contrast */
+.register-grid > aside .overlay-contrast {
+  backdrop-filter: blur(2px);
+}

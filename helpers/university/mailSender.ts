@@ -1,4 +1,3 @@
-// helpers/sendUniversityWelcome.ts
 import nodemailer from "nodemailer";
 
 type WelcomeArgs = {

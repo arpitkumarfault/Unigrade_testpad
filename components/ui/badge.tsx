@@ -1,3 +1,5 @@
+import React, { HTMLAttributes } from "react";
+
 type Tone = "primary" | "secondary" | "success" | "warning" | "danger";
 
 const toneColor: Record<Tone, string> = {
@@ -8,10 +10,23 @@ const toneColor: Record<Tone, string> = {
   danger: "var(--color-danger)",
 };
 
-export function Badge({ children, tone = "primary" }: { children: React.ReactNode; tone?: Tone }) {
+interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+  children: React.ReactNode;
+  tone?: Tone;
+}
+
+export function Badge({ children, tone = "primary", style, ...rest }: BadgeProps) {
   const c = toneColor[tone];
   return (
-    <span className="badge" style={{ background: `color-mix(in oklch, ${c}, transparent 85%)`, color: c }}>
+    <span
+      {...rest}
+      className="badge"
+      style={{
+        background: `color-mix(in oklch, ${c}, transparent 85%)`,
+        color: c,
+        ...style, // Merge custom styles
+      }}
+    >
       {children}
     </span>
   );
