@@ -1,3 +1,4 @@
+"use client"
 import Hero from "@/components/marketing/Hero";
 import TrustBar from "@/components/marketing/TrustBar";
 import KeyFeatures from "@/components/marketing/KeyFeature";

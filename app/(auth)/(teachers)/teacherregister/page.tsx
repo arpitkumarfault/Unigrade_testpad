@@ -16,7 +16,7 @@ type Form = {
   fullName: string;
   email: string;
   department: string;
-  universityEmail:string,
+  universityEmail: string,
   password: string;
   confirmPassword: string;
   agree: boolean;
@@ -33,7 +33,7 @@ const passwordScore = (pwd: string) => {
 };
 
 export default function TeacherRegisterPage() {
-  
+
   const [form, setForm] = useState<Form>({
     fullName: "",
     email: "",
@@ -82,63 +82,63 @@ export default function TeacherRegisterPage() {
 
   const onBlur = (k: keyof Form) => () => setTouched((t) => ({ ...t, [k]: true }));
 
-const submit = async (ev: React.FormEvent) => {
-  ev.preventDefault();
-  setLoading(true);
+  const submit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    setLoading(true);
 
-  try {
-    const response = await axios.post(
-      "/api/teachers/auth/register",
-      {
-        name: form.fullName,
-        email: form.email,
-        department: form.department,
-        universityEmail: form.universityEmail, 
-        password: form.password,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        "/api/teachers/auth/register",
+        {
+          name: form.fullName,
+          email: form.email,
+          department: form.department,
+          universityEmail: form.universityEmail,
+          password: form.password,
         },
-        withCredentials:true
-      }
-    );
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true
+        }
+      );
 
-    if (response.data.status) {
-      toast.success(response.data.message);
-      
-      setForm({
-        fullName: "",
-        email: "",
-        department: "",
-        universityEmail: "",
-        password: "",
-        confirmPassword: "",
-        agree: false,
-      });
-      setTouched({});
-      
-      setTimeout(() => {
-        router.push('/teacherlogin')
-      }, 2000);
-    } else {
-      toast.error(response.data.message || "Registration failed");
+      if (response.data.status) {
+        toast.success(response.data.message);
+
+        setForm({
+          fullName: "",
+          email: "",
+          department: "",
+          universityEmail: "",
+          password: "",
+          confirmPassword: "",
+          agree: false,
+        });
+        setTouched({});
+
+        setTimeout(() => {
+          router.push('/teacherlogin')
+        }, 2000);
+      } else {
+        toast.error(response.data.message || "Registration failed");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "Registration failed";
+        toast.error(message);
+      } else {
+        toast.error("Connection error. Please try again");
+      }
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || "Registration failed";
-      toast.error(message);
-    } else {
-      toast.error("Connection error. Please try again");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <main className="theme-bg" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
-    <Toaster position="top-center" />
+      <Toaster position="top-center" />
       {/* Header */}
       <header
         style={{
@@ -231,16 +231,17 @@ const submit = async (ev: React.FormEvent) => {
                   autoComplete="organization"
                 />
                 <Field
-                  label="UniversityEmail"
-                  name="department"
+                  label="University Email"
+                  name="universityEmail"  
                   value={form.universityEmail}
                   onChange={onChange("universityEmail")}
                   onBlur={onBlur("universityEmail")}
                   error={touched.universityEmail && errors.universityEmail}
-                  placeholder="Computer Science"
-                  icon="🏛️"
-                  autoComplete="organization"
+                  placeholder="jane.doe@university.edu"
+                  icon="🏫"
+                  autoComplete="email"
                 />
+
 
                 {/* Password with toggle */}
                 <div style={{ display: "grid", gap: 6 }}>
@@ -252,9 +253,8 @@ const submit = async (ev: React.FormEvent) => {
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
-                      border: `1px solid ${
-                        touched.password && errors.password ? "var(--color-danger)" : "var(--color-border)"
-                      }`,
+                      border: `1px solid ${touched.password && errors.password ? "var(--color-danger)" : "var(--color-border)"
+                        }`,
                       borderRadius: 8,
                       padding: "0.625rem 0.875rem",
                       background: "var(--color-bg)",
@@ -311,11 +311,10 @@ const submit = async (ev: React.FormEvent) => {
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
-                      border: `1px solid ${
-                        touched.confirmPassword && errors.confirmPassword
+                      border: `1px solid ${touched.confirmPassword && errors.confirmPassword
                           ? "var(--color-danger)"
                           : "var(--color-border)"
-                      }`,
+                        }`,
                       borderRadius: 8,
                       padding: "0.625rem 0.875rem",
                       background: "var(--color-bg)",
@@ -423,7 +422,7 @@ const submit = async (ev: React.FormEvent) => {
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
                 >
-                  {loading ? "Creating..." : "approval request sent"}
+                 {loading ? "Sending Request..." : "Request Approval"}
                 </Button>
 
                 <div style={{ textAlign: "center", fontSize: 13, color: "var(--color-text-muted)" }}>
@@ -486,11 +485,10 @@ const submit = async (ev: React.FormEvent) => {
                 backdropFilter: "blur(16px)",
                 padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 borderRadius: 20,
-                border: `1px solid ${
-                  isDark
+                border: `1px solid ${isDark
                     ? "color-mix(in oklch, white, transparent 85%)"
                     : "color-mix(in oklch, white, transparent 50%)"
-                }`,
+                  }`,
                 transition: "all 0.3s",
               }}
             >
