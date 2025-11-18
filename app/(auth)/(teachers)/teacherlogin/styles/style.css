@@ -1,0 +1,18 @@
+ @media (max-width: 960px) {
+          .login-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .login-grid > aside {
+            order: -1;
+            min-height: 40vh;
+          }
+          .login-grid > section {
+            padding: 1.5rem 1rem !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .login-grid > section {
+            padding: 1rem !important;
+          }
+        }
