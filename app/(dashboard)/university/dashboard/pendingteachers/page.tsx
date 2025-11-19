@@ -27,39 +27,67 @@ export default function PendingApprovalsPage() {
   const fetchPendingTeachers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/admin/pending-teachers");
-      setTeachers(res.data.teachers || []);
+      const res = await axios.get("/api/university/pendingTeachers");
+      setTeachers(res.data.data || []);
+      toast.success("Successfully loaded pending teachers");
+      console.log("Pending teachers:", res.data);
     } catch (error) {
       toast.error("Failed to load pending approvals");
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApproval = async (teacherId: string, approved: boolean) => {
-    setProcessingId(teacherId);
-    const toastId = toast.loading(approved ? "Approving teacher..." : "Rejecting teacher...");
-
+  // Handle approval/rejection
+  const handleApproval = async (teacherId: string, isApprove: boolean) => {
     try {
-      await axios.post("/api/admin/approve-teacher", {
-        teacherId,
-        approved,
-        universityCode: "UNIV2025", 
-      });
+      setProcessingId(teacherId);
 
-      toast.success(
-        approved ? "Teacher approved successfully!" : "Teacher rejected",
-        { id: toastId }
+      // Fixed: Match your actual API route file names
+      const endpoint = isApprove
+        ? "/api/university/approveTeacher"    // Fixed typo "FRequests"
+        : "/api/university/rejectTeacher";    // Match the 404 error URL
+
+      const response = await axios.post(endpoint, { id: teacherId },
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
       );
 
-      // Remove from list
-      setTeachers((prev) => prev.filter((t) => t._id !== teacherId));
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Action failed", { id: toastId });
+      if (response.data.status) {
+        toast.success(
+          isApprove
+            ? "Teacher approved successfully!"
+            : "Teacher rejected successfully!"
+        );
+
+        // Remove the processed teacher from the list
+        setTeachers(prevTeachers =>
+          prevTeachers.filter(teacher => teacher._id !== teacherId)
+        );
+      } else {
+        toast.error(response.data.message || "Operation failed");
+      }
+    } catch (error) {
+      console.error("Error processing approval:", error);
+
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message ||
+          `Failed to ${isApprove ? "approve" : "reject"} teacher`
+        );
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setProcessingId(null);
     }
   };
+
 
   // Filter logic
   const filteredTeachers = teachers.filter((teacher) => {
@@ -330,8 +358,8 @@ export default function PendingApprovalsPage() {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  <span>✓</span>
-                  Approve
+                  <span>{processingId === teacher._id ? "⏳" : "✓"}</span>
+                  {processingId === teacher._id ? "Processing..." : "Approve"}
                 </button>
                 <button
                   onClick={() => handleApproval(teacher._id, false)}
@@ -363,8 +391,8 @@ export default function PendingApprovalsPage() {
                     e.currentTarget.style.color = "var(--color-danger)";
                   }}
                 >
-                  <span>✕</span>
-                  Reject
+                  <span>{processingId === teacher._id ? "⏳" : "✕"}</span>
+                  {processingId === teacher._id ? "Processing..." : "Reject"}
                 </button>
               </div>
             </div>

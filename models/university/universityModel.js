@@ -3,35 +3,38 @@ import mongoose from "mongoose";
 const universitySchema = new mongoose.Schema({
     universityCode: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     universityName: {
         type: String,
         unique: true,
-        require: true,
+        required: true,
     },
     universityEmail: {
         type: String,
         unique: true,
-        require: true
+        required: true
     },
     contactNumber: {
         type: Number,
         unique: true,
-        require: true
+        required: true
     },
     address: {
         type: String,
         unique: true,
-        require: true
+        required: true
     },
     password: {
         type: String,
-        unique: true,
-        require: true
-    }
-})
+        required: true
+    },
+    teachers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Teacher'
+    }]
+}, { timestamps: true });
 
-const University = mongoose.models.university || mongoose.model('university', universitySchema);
-export default University
+const University = mongoose.models.University || mongoose.model('University', universitySchema);
+export default University;

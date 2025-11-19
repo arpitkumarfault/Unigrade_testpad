@@ -18,12 +18,17 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    // ✅ FIXED - Store as string, not ObjectId reference
     universityEmail: {
       type: String,
       required: [true, "University email is required"],
       trim: true,
       lowercase: true,
+    },
+    // Add ObjectId reference for better queries
+    universityId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'University',
+      required: true,
     },
     department: {
       type: String,
@@ -47,6 +52,7 @@ const teacherSchema = new mongoose.Schema(
 
 teacherSchema.index({ email: 1 });
 teacherSchema.index({ universityEmail: 1 });
+teacherSchema.index({ universityId: 1 });
 
 const Teacher = mongoose.models.Teacher || mongoose.model("Teacher", teacherSchema);
 
