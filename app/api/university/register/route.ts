@@ -98,8 +98,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: any) {
-    console.log("error message >>>", err);
-
     if (err?.code === 11000) {
       const field = Object.keys(err?.keyPattern || {})[0] || "field";
       return NextResponse.json(

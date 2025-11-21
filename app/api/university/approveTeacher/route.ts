@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json()
 
-    console.log('Received ID:', id)
 
     if (!id) {
       return NextResponse.json(
@@ -21,8 +20,6 @@ export async function POST(req: NextRequest) {
 
     const existingPendingTeacher = await Teacher.findById(id)
 
-    console.log('Found teacher:', existingPendingTeacher)
-    console.log("teacher email",existingPendingTeacher.universityEmail);
     
 
     if (!existingPendingTeacher) {
@@ -43,7 +40,6 @@ export async function POST(req: NextRequest) {
       universityEmail: existingPendingTeacher.universityEmail 
     })
 
-    console.log('Found university:', university)
 
     existingPendingTeacher.isApproved = true
 
@@ -53,9 +49,7 @@ export async function POST(req: NextRequest) {
 
     const savedTeacher = await existingPendingTeacher.save({ validateBeforeSave: false })
 
-    console.log('Saved teacher:', savedTeacher)
     
-    // ✅ Send APPROVAL email
     try {
       await sendTeacherApprovedEmail({
         to: existingPendingTeacher.email,
@@ -64,7 +58,6 @@ export async function POST(req: NextRequest) {
         universityCode: university?.universityCode ||  'N/A',
         department: existingPendingTeacher.department,
       })
-      console.log('Approval email sent successfully')
     } catch (emailError) {
       console.error('Failed to send approval email:', emailError)
     }
@@ -79,8 +72,6 @@ export async function POST(req: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Error approving teacher:', error)
-
     return NextResponse.json(
       {
         message: 'Internal server error',

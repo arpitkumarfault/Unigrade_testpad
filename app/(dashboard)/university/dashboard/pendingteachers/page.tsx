@@ -30,7 +30,6 @@ export default function PendingApprovalsPage() {
       const res = await axios.get("/api/university/pendingTeachers");
       setTeachers(res.data.data || []);
       toast.success("Successfully loaded pending teachers");
-      console.log("Pending teachers:", res.data);
     } catch (error) {
       toast.error("Failed to load pending approvals");
       console.error("Error:", error);

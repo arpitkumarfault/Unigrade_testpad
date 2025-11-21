@@ -8,40 +8,30 @@ export async function POST(req: NextRequest) {
   await dbConnect()
 
   try {
-    const { id } = await req.json() 
-
-    console.log('Rejecting teacher with ID:', id)
+    const { id } = await req.json()
 
     if (!id) {
-      return NextResponse.json(
-        { message: 'Teacher ID is required', status: false },
-        { status: 400 }
-      )
+      return NextResponse.json({ message: 'Teacher ID is required', status: false }, { status: 400 })
     }
 
     const existingPendingTeacher = await Teacher.findById(id)
 
     if (!existingPendingTeacher) {
-      return NextResponse.json(
-        { message: 'No teacher found with this ID', status: false },
-        { status: 404 }
-      )
+      return NextResponse.json({ message: 'No teacher found with this ID', status: false }, { status: 404 })
     }
 
-    const university = await University.findOne({ 
-      email: existingPendingTeacher.universityEmail 
+    const university = await University.findOne({
+      email: existingPendingTeacher.universityEmail,
     })
 
     const teacherData = {
       email: existingPendingTeacher.email,
       name: existingPendingTeacher.name,
       department: existingPendingTeacher.department,
-      universityCode: university?.code || university?.name || 'University'
+      universityCode: university?.code || university?.name || 'University',
     }
 
     await Teacher.findByIdAndDelete(id)
-
-    console.log('Teacher rejected and deleted:', id)
 
     try {
       await sendTeacherRejectedEmail({
@@ -50,7 +40,6 @@ export async function POST(req: NextRequest) {
         universityCode: teacherData.universityCode,
         department: teacherData.department,
       })
-      console.log('Rejection email sent successfully')
     } catch (emailError) {
       console.error('Failed to send rejection email:', emailError)
     }
@@ -60,9 +49,8 @@ export async function POST(req: NextRequest) {
         message: 'Teacher rejected successfully',
         status: true,
       },
-      { status: 200 }
+      { status: 200 },
     )
-
   } catch (error) {
     console.error('Error rejecting teacher:', error)
 
@@ -72,7 +60,7 @@ export async function POST(req: NextRequest) {
         status: false,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }
