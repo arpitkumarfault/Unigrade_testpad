@@ -1,47 +1,93 @@
-import Teacher from "@/models/teachers/teacherModels";
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/database/dbConnect";
+import Teacher from '@/models/teachers/teacherModels'
+import University from '@/models/university/universityModel'
+import { NextRequest, NextResponse } from 'next/server'
+import dbConnect from '@/database/dbConnect'
+import sendTeacherApprovedEmail from '@/helpers/university/sendTeacherApprovalMail'
 
 export async function POST(req: NextRequest) {
   await dbConnect()
+
   try {
-    const { id } = await req.json();
+    const { id } = await req.json()
+
+    console.log('Received ID:', id)
 
     if (!id) {
       return NextResponse.json(
-        { message: "teacher id is required", status: false },
+        { message: 'Teacher ID is required', status: false }, 
         { status: 400 }
-      );
+      )
     }
 
-    const existingPendingTeacher = await Teacher.findById(id);
+    const existingPendingTeacher = await Teacher.findById(id)
+
+    console.log('Found teacher:', existingPendingTeacher)
+    console.log("teacher email",existingPendingTeacher.universityEmail);
+    
 
     if (!existingPendingTeacher) {
       return NextResponse.json(
-        { message: "no existing teacher present with this id", status: false },
+        { message: 'No teacher found with this ID', status: false }, 
         { status: 404 }
-      );
+      )
     }
 
-    existingPendingTeacher.isApproved = true;
-    await existingPendingTeacher.save();
+    if (existingPendingTeacher.isApproved) {
+      return NextResponse.json(
+        { message: 'Teacher is already approved', status: false }, 
+        { status: 400 }
+      )
+    }
+
+    const university = await University.findOne({ 
+      universityEmail: existingPendingTeacher.universityEmail 
+    })
+
+    console.log('Found university:', university)
+
+    existingPendingTeacher.isApproved = true
+
+    if (university && !existingPendingTeacher.universityId) {
+      existingPendingTeacher.universityId = university._id
+    }
+
+    const savedTeacher = await existingPendingTeacher.save({ validateBeforeSave: false })
+
+    console.log('Saved teacher:', savedTeacher)
+    
+    // ✅ Send APPROVAL email
+    try {
+      await sendTeacherApprovedEmail({
+        to: existingPendingTeacher.email,
+        teacherName: existingPendingTeacher.name,
+        teacherId: existingPendingTeacher._id.toString(),
+        universityCode: university?.universityCode ||  'N/A',
+        department: existingPendingTeacher.department,
+      })
+      console.log('Approval email sent successfully')
+    } catch (emailError) {
+      console.error('Failed to send approval email:', emailError)
+    }
 
     return NextResponse.json(
       {
-        message: "Teacher approved successfully",
+        message: 'Teacher approved successfully',
         status: true,
-        data: existingPendingTeacher,
+        data: savedTeacher,
       },
       { status: 200 }
-    );
+    )
+
   } catch (error) {
+    console.error('Error approving teacher:', error)
+
     return NextResponse.json(
       {
-        message: "Internal server error",
+        message: 'Internal server error',
         status: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }

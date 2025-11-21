@@ -10,7 +10,7 @@ const teacherSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true,
+      unique: true,  
       lowercase: true,
       trim: true,
     },
@@ -24,11 +24,10 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    // Add ObjectId reference for better queries
     universityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
-      required: true,
+      required: false,
     },
     department: {
       type: String,
@@ -50,7 +49,7 @@ const teacherSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-teacherSchema.index({ email: 1 });
+// Only index fields that DON'T have unique: true
 teacherSchema.index({ universityEmail: 1 });
 teacherSchema.index({ universityId: 1 });
 

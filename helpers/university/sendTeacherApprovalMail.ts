@@ -3,9 +3,8 @@ import nodemailer from 'nodemailer'
 type TeacherApprovedEmailArgs = {
   to: string
   teacherName: string
-  teacherId: string
+  teacherId?: string
   universityCode: string
-  password: string
   department?: string
 }
 
@@ -22,7 +21,6 @@ export default async function sendTeacherApprovedEmail({
   teacherName, 
   teacherId,
   universityCode,
-  password,
   department
 }: TeacherApprovedEmailArgs) {
   const loginUrl = process.env.LOGIN_URL || 'https://unigrade-testpad.com/teacherlogin'
@@ -39,10 +37,10 @@ export default async function sendTeacherApprovedEmail({
     <p>Congratulations! Your registration for <strong>Unigrade TestPad</strong> has been <strong style="color:#27ae60;">approved</strong>.</p>
 
     <div style="background-color:#d4edda; border-left:4px solid #28a745; padding:15px; margin:20px 0; border-radius:4px;">
-      <p style="margin:0; color:#155724; font-weight:600;">🎉 Your account is now active! Use the credentials below to login.</p>
+      <p style="margin:0; color:#155724; font-weight:600;">🎉 Your account is now active! Login using your registered email and password.</p>
     </div>
 
-    <h3 style="color:#2c3e50; font-size:18px; margin-bottom:10px;">Your Login Credentials</h3>
+    <h3 style="color:#2c3e50; font-size:18px; margin-bottom:10px;">Your Account Details</h3>
 
     <div style="background-color:#ffffff; border:1px solid #ddd; border-radius:6px; padding:16px; margin:15px 0;">
       <table style="width:100%; border-collapse:collapse;">
@@ -50,21 +48,19 @@ export default async function sendTeacherApprovedEmail({
           <td style="padding:10px 0; color:#555; font-weight:bold; width:45%;">Teacher Name:</td>
           <td style="padding:10px 0; color:#2c3e50;">${teacherName}</td>
         </tr>
+        ${teacherId ? `
+        <tr>
+          <td style="padding:10px 0; color:#555; font-weight:bold;">Teacher ID:</td>
+          <td style="padding:10px 0; color:#16a085; font-family:monospace;">${teacherId}</td>
+        </tr>
+        ` : ''}
         <tr>
           <td style="padding:10px 0; color:#555; font-weight:bold;">Email:</td>
           <td style="padding:10px 0; color:#16a085;">${to}</td>
         </tr>
         <tr>
-          <td style="padding:10px 0; color:#555; font-weight:bold;">Teacher ID:</td>
-          <td style="padding:10px 0; color:#e67e22; font-family:monospace; font-size:16px;">${teacherId}</td>
-        </tr>
-        <tr>
           <td style="padding:10px 0; color:#555; font-weight:bold;">University Code:</td>
           <td style="padding:10px 0; color:#9b59b6; font-family:monospace; font-size:16px;">${universityCode}</td>
-        </tr>
-        <tr>
-          <td style="padding:10px 0; color:#555; font-weight:bold;">Password:</td>
-          <td style="padding:10px 0; color:#c0392b; font-family:monospace; font-size:16px;">${password}</td>
         </tr>
         ${department ? `
         <tr>
@@ -73,10 +69,6 @@ export default async function sendTeacherApprovedEmail({
         </tr>
         ` : ''}
       </table>
-    </div>
-
-    <div style="background-color:#fff3cd; border-left:4px solid #ffc107; padding:12px 15px; margin:20px 0; border-radius:4px;">
-      <p style="margin:0; font-size:14px; color:#856404;"><strong>⚠️ Important:</strong> For security reasons, please change your password immediately after your first login.</p>
     </div>
 
     <div style="text-align:center; margin:25px 0;">
@@ -104,7 +96,7 @@ export default async function sendTeacherApprovedEmail({
   await transporter.sendMail({
     from: `"Unigrade TestPad" <${process.env.USER_EMAIL}>`,
     to,
-    subject: '✓ Account Approved - Your Login Credentials Inside',
+    subject: '✓ Account Approved - Welcome to Unigrade TestPad',
     html,
   })
 }
