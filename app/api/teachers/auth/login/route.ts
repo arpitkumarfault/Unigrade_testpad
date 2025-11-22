@@ -1,121 +1,80 @@
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import Teacher from "@/models/teachers/teacherModels";
-import dbConnect from "@/database/dbConnect";
+import { NextRequest, NextResponse } from 'next/server'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import Teacher from '@/models/teachers/teacherModels'
+import University from '@/models/university/universityModel'
+import dbConnect from '@/database/dbConnect'
 
 interface LoginBody {
-  universityCode: string;
-  email: string;
-  password: string;  
+  universityCode: string
+  email: string
+  password: string
 }
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here' 
+
 export async function POST(req: NextRequest) {
+  await dbConnect()
   try {
-    // Connect to database
-    await dbConnect();
+    const { universityCode, email, password }: LoginBody = await req.json()
 
-    // Parse request body - FIXED: Added await
-    const reqBody: LoginBody = await req.json();
-    const { universityCode, email, password } = reqBody;
-
-    // Validate required fields
     if (!universityCode || !email || !password) {
-      return NextResponse.json(
-        {
-          message: "All fields are required",
-          status: false,
-        },
-        { status: 400 }
-      );
+      return NextResponse.json({ status: false, message: 'Please fill all required fields' }, { status: 400 })
     }
 
-    // Find teacher by email - FIXED: Added await and findOne instead of find
-    const teacher = await Teacher.findOne({ email }).lean();
-
+    const teacher = await Teacher.findOne({ email: email.toLowerCase() }).lean()
     if (!teacher) {
-      return NextResponse.json(
-        {
-          message: "Invalid credentials",
-          status: false,
-        },
-        { status: 401 }
-      );
+      return NextResponse.json({ status: false, message: 'No teacher found with this email' }, { status: 404 })
     }
 
-    // Verify university code
-    if (teacher.universityCode !== universityCode) {
+    const university = await University.findOne({ universityCode }).lean()
+    if (!university) {
       return NextResponse.json(
-        {
-          message: "Invalid university code",
-          status: false,
-        },
-        { status: 401 }
-      );
+        { status: false, message: 'No university found with this university code' },
+        { status: 404 },
+      )
     }
 
-    // Compare password with hashed password - CORRECT WAY
-    const isPasswordValid = await bcrypt.compare(password, teacher.password);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        {
-          message: "Invalid credentials",
-          status: false,
-        },
-        { status: 401 }
-      );
+    if (
+      teacher.universityCode !== universityCode &&
+      teacher.universityEmail.toLowerCase() !== university.universityEmail.toLowerCase()
+    ) {
+      return NextResponse.json({ status: false, message: 'Invalid university code for this teacher' }, { status: 403 })
     }
 
-    // Generate JWT token
+    const passwordMatch = await bcrypt.compare(password, teacher.password)
+    if (!passwordMatch) {
+      return NextResponse.json({ status: false, message: 'Incorrect password' }, { status: 401 })
+    }
+
     const token = jwt.sign(
       {
         id: teacher._id,
         email: teacher.email,
-        role: "teacher",
-        universityCode: teacher.universityCode,
+        universityCode,
       },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+      JWT_SECRET,
+      { expiresIn: '7d' },
+    )
 
-    // Create response with teacher data (exclude password)
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
-        message: "Login successful",
         status: true,
+        message: 'Login successful',
+        token,
         teacher: {
           id: teacher._id,
           name: teacher.name,
           email: teacher.email,
           department: teacher.department,
-          universityCode: teacher.universityCode,
+          universityEmail: teacher.universityEmail,
+          isApproved: teacher.isApproved,
         },
       },
-      { status: 200 }
-    );
-
-    // Set HTTP-only cookie for token
-    response.cookies.set({
-      name: "token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
-
-    return response;
+      { status: 200 },
+    )
   } catch (error: any) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      {
-        message: "Internal server error",
-        status: false,
-        error: error.message,
-      },
-      { status: 500 }
-    );
+    console.error('Login error:', error)
+    return NextResponse.json({ status: false, message: 'Internal server error', error: error.message }, { status: 500 })
   }
 }

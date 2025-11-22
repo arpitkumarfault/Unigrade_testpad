@@ -17,6 +17,7 @@ type Form = {
   email: string;
   department: string;
   universityEmail: string,
+  universityName: string,
   password: string;
   confirmPassword: string;
   agree: boolean;
@@ -39,6 +40,7 @@ export default function TeacherRegisterPage() {
     email: "",
     department: "",
     universityEmail: "",
+    universityName: "",
     password: "",
     confirmPassword: "",
     agree: false,
@@ -68,7 +70,8 @@ export default function TeacherRegisterPage() {
     if (!form.email) e.email = "Email required";
     else if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Valid email required";
     if (!form.department.trim()) e.department = "Department required";
-    if (!form.universityEmail.trim()) e.universityEmail = "universityEmail required";
+    if (!form.universityEmail.trim()) e.universityEmail = "University email required";
+    if (!form.universityName.trim()) e.universityName = "University name required"; // ← Added
     if (form.password.length < 8) e.password = "Min 8 characters";
     if (form.confirmPassword !== form.password) e.confirmPassword = "Passwords don't match";
     if (!form.agree) e.agree = "Accept terms to continue";
@@ -94,6 +97,7 @@ export default function TeacherRegisterPage() {
           email: form.email,
           department: form.department,
           universityEmail: form.universityEmail,
+          universityName: form.universityName,
           password: form.password,
         },
         {
@@ -104,6 +108,7 @@ export default function TeacherRegisterPage() {
         }
       );
 
+      // ...rest of your logic
       if (response.data.status) {
         toast.success(response.data.message);
 
@@ -112,12 +117,12 @@ export default function TeacherRegisterPage() {
           email: "",
           department: "",
           universityEmail: "",
+          universityName: "", // ← Added
           password: "",
           confirmPassword: "",
           agree: false,
         });
         setTouched({});
-
         setTimeout(() => {
           router.push('/teacherlogin')
         }, 2000);
@@ -135,6 +140,7 @@ export default function TeacherRegisterPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <main className="theme-bg" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
@@ -232,7 +238,7 @@ export default function TeacherRegisterPage() {
                 />
                 <Field
                   label="University Email"
-                  name="universityEmail"  
+                  name="universityEmail"
                   value={form.universityEmail}
                   onChange={onChange("universityEmail")}
                   onBlur={onBlur("universityEmail")}
@@ -241,7 +247,17 @@ export default function TeacherRegisterPage() {
                   icon="🏫"
                   autoComplete="email"
                 />
-
+                <Field
+                  label="University Name"
+                  name="universityName"
+                  value={form.universityName}
+                  onChange={onChange("universityName")}
+                  onBlur={onBlur("universityName")}
+                  error={touched.universityName && errors.universityName}
+                  placeholder="Indian Institute of Technology"
+                  icon="🏫"
+                  autoComplete="organization"
+                />
 
                 {/* Password with toggle */}
                 <div style={{ display: "grid", gap: 6 }}>
@@ -312,8 +328,8 @@ export default function TeacherRegisterPage() {
                       alignItems: "center",
                       gap: 10,
                       border: `1px solid ${touched.confirmPassword && errors.confirmPassword
-                          ? "var(--color-danger)"
-                          : "var(--color-border)"
+                        ? "var(--color-danger)"
+                        : "var(--color-border)"
                         }`,
                       borderRadius: 8,
                       padding: "0.625rem 0.875rem",
@@ -422,7 +438,7 @@ export default function TeacherRegisterPage() {
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
                 >
-                 {loading ? "Sending Request..." : "Request Approval"}
+                  {loading ? "Sending Request..." : "Request Approval"}
                 </Button>
 
                 <div style={{ textAlign: "center", fontSize: 13, color: "var(--color-text-muted)" }}>
@@ -486,8 +502,8 @@ export default function TeacherRegisterPage() {
                 padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 borderRadius: 20,
                 border: `1px solid ${isDark
-                    ? "color-mix(in oklch, white, transparent 85%)"
-                    : "color-mix(in oklch, white, transparent 50%)"
+                  ? "color-mix(in oklch, white, transparent 85%)"
+                  : "color-mix(in oklch, white, transparent 50%)"
                   }`,
                 transition: "all 0.3s",
               }}

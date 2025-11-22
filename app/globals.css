@@ -24,3 +24,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+:root {
+  --color-primary: #3498db;
+  --color-secondary: #9b59b6;
+  --color-success: #27ae60;
+  --color-warning: #e67e22;
+  --color-danger: #e74c3c;
+  
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-border: #e9ecef;
+  
+  --color-text: #2c3e50;
+  --color-text-muted: #95a5a6;
+}
+
+[data-theme="dark"] {
+  --color-bg: #1a1a1a;
+  --color-surface: #2d2d2d;
+  --color-border: #404040;
+  
+  --color-text: #ecf0f1;
+  --color-text-muted: #7f8c8d;
+}
