@@ -7,6 +7,9 @@ import { Field } from "@/components/ui/Field";
 import "@/components/Theme/styles/theme.css";
 import ThemeToggleFab from "@/components/teacher/ThemeToggle";
 import loginImage from '@/public/images/login.jpg'
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 type LoginForm = {
   universityCode: string;
@@ -26,6 +29,8 @@ export default function TeacherLoginPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isDark, setIsDark] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>(""); // For UI error display
+  const router = useRouter();
 
   // Detect theme
   useEffect(() => {
@@ -36,39 +41,76 @@ export default function TeacherLoginPage() {
     return () => observer.disconnect();
   }, []);
 
+  // Calculate errors as a function for latest state
   const errors = {
     universityCode: !form.universityCode.trim() && touched.universityCode ? "University code required" : false,
     email: !form.email
       ? touched.email && "Email required"
       : !/^\S+@\S+\.\S+$/.test(form.email) && touched.email
-      ? "Valid email required"
-      : false,
+        ? "Valid email required"
+        : false,
     password: form.password.length < 6 && touched.password ? "Min 6 characters" : false,
   };
 
   const onChange = (k: keyof LoginForm) => (ev: React.ChangeEvent<HTMLInputElement>) => {
     const val = ev.currentTarget.type === "checkbox" ? ev.currentTarget.checked : ev.currentTarget.value;
     setForm((f) => ({ ...f, [k]: val }));
+    setErrorMsg(""); // Clear error on change
   };
 
   const onBlur = (k: keyof LoginForm) => () => setTouched((t) => ({ ...t, [k]: true }));
 
-  const submit = async (ev: React.FormEvent) => {
-    ev.preventDefault();
-    setTouched({ universityCode: true, email: true, password: true });
-    if (Object.values(errors).some((e) => e)) return;
-    setLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      alert("Login successful!");
-      // router.push("/teacher/dashboard")
-    } catch {
-      alert("Invalid credentials. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
+const submit = async (ev: React.FormEvent) => {
+  ev.preventDefault();
+  setLoading(true);
+  setTouched({
+    universityCode: true,
+    email: true,
+    password: true,
+    remember: true,
+  });
+
+  if (errors.universityCode || errors.email || errors.password) {
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      '/api/teachers/auth/login',
+      {
+        universityCode: form.universityCode,
+        email: form.email,
+        password: form.password,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      }
+    );
+
+    if (response.data.status) {
+      toast.success(response.data.message || "Login successful");
+      setTimeout(() => {
+        router.push('/teacher/dashboard');
+      }, 200);
+    } else {
+      toast.error(response.data.message || "Login failed");
+    }
+  } catch (error: any) {
+    const message = error?.response?.data?.message || "Login failed";
+    toast.error(message);
+    setErrorMsg(message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // Main return block INSIDE the component
   return (
     <main className="theme-bg" style={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
@@ -120,6 +162,13 @@ export default function TeacherLoginPage() {
                 Sign in to your teacher account to continue
               </p>
             </div>
+
+            {/* Error display */}
+            {errorMsg && (
+              <div style={{ color: "var(--color-danger)", marginBottom: 12, fontSize: 14 }}>
+                {errorMsg}
+              </div>
+            )}
 
             <form onSubmit={submit} noValidate>
               <div style={{ display: "grid", gap: 18 }}>
@@ -327,11 +376,10 @@ export default function TeacherLoginPage() {
                 backdropFilter: "blur(16px)",
                 padding: "clamp(1.5rem, 4vw, 2.5rem)",
                 borderRadius: 20,
-                border: `1px solid ${
-                  isDark
-                    ? "color-mix(in oklch, white, transparent 85%)"
-                    : "color-mix(in oklch, white, transparent 50%)"
-                }`,
+                border: `1px solid ${isDark
+                  ? "color-mix(in oklch, white, transparent 85%)"
+                  : "color-mix(in oklch, white, transparent 50%)"
+                  }`,
                 transition: "all 0.3s",
               }}
             >

@@ -10,6 +10,7 @@ interface RegisterBody {
   email: string;
   department: string;
   universityEmail: string;
+  universityName:string,
   password: string;
 }
 
@@ -18,9 +19,9 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     const reqBody: RegisterBody = await req.json();
-    const { name, email, department, universityEmail, password } = reqBody;
+    const { name, email, department, universityEmail,universityName, password } = reqBody;
 
-    if (!name || !email || !department || !universityEmail || !password) {
+    if (!name || !email || !department || !universityEmail|| !universityName || !password) {
       return NextResponse.json(
         {
           message: "All fields are required",
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
       email,
       department,
       universityEmail,
+      university:universityName,
       password: hashedPassword,
       isApproved: false, 
     });

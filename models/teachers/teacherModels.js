@@ -24,10 +24,15 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    universityId: {
+    // This field stores a reference (ObjectId) to a University document
+    university: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
       required: false,
+    },
+    universityCode:{
+      type:String,
+      unique:true
     },
     department: {
       type: String,
@@ -49,9 +54,7 @@ const teacherSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Only index fields that DON'T have unique: true
 teacherSchema.index({ universityEmail: 1 });
-teacherSchema.index({ universityId: 1 });
 
 const Teacher = mongoose.models.Teacher || mongoose.model("Teacher", teacherSchema);
 
