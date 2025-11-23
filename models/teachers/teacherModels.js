@@ -24,15 +24,19 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    // This field stores a reference (ObjectId) to a University document
-    university: {
+    university: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
       required: false,
-    },
+    }],
     universityCode:{
       type:String,
       unique:true
+    },
+    classroomCode:{
+      type:string,
+      unique:true,
+      required:false
     },
     department: {
       type: String,

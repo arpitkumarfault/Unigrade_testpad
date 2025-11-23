@@ -34,7 +34,13 @@ const universitySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Teacher',
     required: false
+  }],
+  students:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Student",
+    required:false
   }]
+
 }, { timestamps: true });
 
 const University = mongoose.models.University || mongoose.model('University', universitySchema);

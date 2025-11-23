@@ -1,0 +1,18 @@
+ @media (max-width: 960px) {
+          .register-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .register-grid > aside {
+            order: -1;
+            min-height: 40vh;
+          }
+          .register-grid > section {
+            padding: 1.5rem 1rem !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .register-grid > section {
+            padding: 1rem !important;
+          }
+        }

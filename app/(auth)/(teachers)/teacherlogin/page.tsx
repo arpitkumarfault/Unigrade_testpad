@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Field } from "@/components/ui/Field";
 import "@/components/Theme/styles/theme.css";
 import ThemeToggleFab from "@/components/teacher/ThemeToggle";
-import loginImage from '@/public/images/login.jpg'
+import loginImage from '@/public/images/login2.jpg'
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
