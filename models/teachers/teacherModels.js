@@ -24,17 +24,18 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    university: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'University',
-      required: false,
-    }],
+    // university: [{
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'University',
+    //   required: false,
+    // }],
     universityCode:{
       type:String,
-      unique:true
+      unique:true,
+      required:false
     },
     classroomCode:{
-      type:string,
+      type:String,
       unique:true,
       required:false
     },

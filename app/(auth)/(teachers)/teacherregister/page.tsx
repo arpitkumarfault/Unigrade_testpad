@@ -17,7 +17,6 @@ type Form = {
   email: string;
   department: string;
   universityEmail: string,
-  universityName: string,
   password: string;
   confirmPassword: string;
   agree: boolean;
@@ -40,7 +39,6 @@ export default function TeacherRegisterPage() {
     email: "",
     department: "",
     universityEmail: "",
-    universityName: "",
     password: "",
     confirmPassword: "",
     agree: false,
@@ -71,7 +69,6 @@ export default function TeacherRegisterPage() {
     else if (!/^\S+@\S+\.\S+$/.test(form.email)) e.email = "Valid email required";
     if (!form.department.trim()) e.department = "Department required";
     if (!form.universityEmail.trim()) e.universityEmail = "University email required";
-    if (!form.universityName.trim()) e.universityName = "University name required"; // ← Added
     if (form.password.length < 8) e.password = "Min 8 characters";
     if (form.confirmPassword !== form.password) e.confirmPassword = "Passwords don't match";
     if (!form.agree) e.agree = "Accept terms to continue";
@@ -97,7 +94,6 @@ export default function TeacherRegisterPage() {
           email: form.email,
           department: form.department,
           universityEmail: form.universityEmail,
-          universityName: form.universityName,
           password: form.password,
         },
         {
@@ -117,7 +113,6 @@ export default function TeacherRegisterPage() {
           email: "",
           department: "",
           universityEmail: "",
-          universityName: "", // ← Added
           password: "",
           confirmPassword: "",
           agree: false,
@@ -247,17 +242,7 @@ export default function TeacherRegisterPage() {
                   icon="🏫"
                   autoComplete="email"
                 />
-                <Field
-                  label="University Name"
-                  name="universityName"
-                  value={form.universityName}
-                  onChange={onChange("universityName")}
-                  onBlur={onBlur("universityName")}
-                  error={touched.universityName && errors.universityName}
-                  placeholder="Indian Institute of Technology"
-                  icon="🏫"
-                  autoComplete="organization"
-                />
+           
 
                 {/* Password with toggle */}
                 <div style={{ display: "grid", gap: 6 }}>
