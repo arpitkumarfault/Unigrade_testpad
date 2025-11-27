@@ -62,7 +62,7 @@ export default function UniversityLoginPage() {
     setLoading(true);
 
     try {
-      const { data } = await axios.post("/api/university/login", 
+      const { data } = await axios.post("/api/university/auth/login", 
         { universityCode: form.universityCode, password: form.password },
         { headers: { "Content-Type": "application/json" }, withCredentials: true }
       );

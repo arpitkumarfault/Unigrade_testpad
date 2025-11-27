@@ -120,7 +120,7 @@ export default function StudentRegisterPage() {
         {
           name: form.fullName,
           email: form.email,
-          enrollmentNumber: form.enrollmentNumber,  
+          enrollmentNumber: form.enrollmentNumber,
           department: form.department,
           universityName: form.universityName,
           batch: form.batch,
@@ -132,10 +132,14 @@ export default function StudentRegisterPage() {
           withCredentials: true,
         }
       );
-      if(response.data.status){
+      if (response.data.status) {
         toast.success("successfully approval request send")
-      }
 
+      }
+      setTimeout(() => {
+        router.push('/studentlogin')
+
+      }, 200);
       // ... rest unchanged
     } catch (error: any) {
       // ... error handling unchanged

@@ -1,63 +1,118 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Student from '@/models/students/studentModel';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Student from '@/models/students/studentModel';
+import University from '@/models/university/universityModel';
+import dbConnect from '@/database/dbConnect';
 
-interface LoginRequest {
-  classroomCode: string;
-  enrollmentNumber: string;
+interface LoginBody {
+  universityCode: string;
+  email: string;
   password: string;
 }
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
+
 export async function POST(req: NextRequest) {
+  await dbConnect();
+
   try {
-    const { classroomCode, enrollmentNumber, password }: LoginRequest = await req.json();
+    const { universityCode, email, password }: LoginBody = await req.json();
 
-    if (!classroomCode || !enrollmentNumber || !password) {
-      return NextResponse.json({ message: 'All fields are required', status: false }, { status: 400 });
+    if (!universityCode || !email || !password) {
+      return NextResponse.json(
+        { status: false, message: 'Please fill all required fields' },
+        { status: 400 }
+      );
     }
 
-    // Find student by enrollment number and classroom (institution) code
-    const student = await Student.findOne({ 
-      enrollmentNumber,
-      universityName: classroomCode,
-    });
-
+    // Ensure case-insensitive email search
+    const student = await Student.findOne({ email: email.toLowerCase() }).lean();
     if (!student) {
-      return NextResponse.json({ message: 'Invalid enrollment number or classroom code', status: false }, { status: 401 });
+      console.log(`Login failed: Student not found with email: ${email}`);
+      return NextResponse.json(
+        { status: false, message: 'No student found with this email' },
+        { status: 404 }
+      );
     }
 
-    // Check if student is active (approved)
-    if (!student.isActive) {
-      return NextResponse.json({ message: 'Your account is pending approval', status: false }, { status: 403 });
+    const university = await University.findOne({ universityCode }).lean();
+    if (!university) {
+      console.log(`Login failed: University not found with code: ${universityCode}`);
+      return NextResponse.json(
+        { status: false, message: 'No university found with this university code' },
+        { status: 404 }
+      );
     }
 
-    // Verify password
-    const passwordMatch = await bcrypt.compare(password, student.password);
+    // Compare university codes case-insensitively
+    if (universityCode.toLowerCase() !== university.universityCode.toLowerCase()) {
+      console.log(`Login failed: Mismatch university code for student: ${universityCode} vs ${university.universityCode}`);
+      return NextResponse.json(
+        { status: false, message: 'Invalid university code for this student' },
+        { status: 403 }
+      );
+    }
+
+    // Fetch password explicitly
+    const studentWithPassword = await Student.findById(student._id).select('+password');
+    if (!studentWithPassword) {
+      console.error('Student found but unable to fetch password field');
+      return NextResponse.json(
+        { status: false, message: 'User data incomplete' },
+        { status: 500 }
+      );
+    }
+
+    const passwordMatch = await bcrypt.compare(password, studentWithPassword.password);
     if (!passwordMatch) {
-      return NextResponse.json({ message: 'Incorrect password', status: false }, { status: 401 });
+      console.log(`Login failed: Incorrect password for student email: ${email}`);
+      return NextResponse.json(
+        { status: false, message: 'Incorrect password' },
+        { status: 401 }
+      );
     }
 
-    // Generate JWT (adjust secret + expiry as per your setup)
+    if (!studentWithPassword.isApproved) {
+      console.log(`Login failed: Student account not active for email: ${email}`);
+      return NextResponse.json(
+        { status: false, message: 'Your account is pending approval' },
+        { status: 403 }
+      );
+    }
+
+    // Successful login
     const token = jwt.sign(
-      { id: student._id, role: 'student', institutionId: student.universityName },
-      process.env.JWT_SECRET!,
-      { expiresIn: '1d' }
+      {
+        id: studentWithPassword._id,
+        email: studentWithPassword.email,
+        universityCode,
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
     );
 
-    return NextResponse.json({
-      message: 'Login successful',
-      status: true,
-      token,
-      user: {
-        id: student._id,
-        name: student.name,
-        email: student.email,
-        enrollmentNumber: student.enrollmentNumber,
+    return NextResponse.json(
+      {
+        status: true,
+        message: 'Login successful',
+        token,
+        student: {
+          id: studentWithPassword._id,
+          name: studentWithPassword.name,
+          email: studentWithPassword.email,
+          universityName: studentWithPassword.universityName,
+          department: studentWithPassword.department,
+          isActive: studentWithPassword.isActive,
+        },
       },
-    });
-    
-  } catch (error) {
-    return NextResponse.json({ message: 'Server error', status: false }, { status: 500 });
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error('Student login error:', error);
+    return NextResponse.json(
+      { status: false, message: 'Internal server error', error: error.message },
+      { status: 500 }
+    );
   }
 }

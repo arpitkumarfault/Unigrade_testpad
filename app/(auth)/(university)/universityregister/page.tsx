@@ -103,7 +103,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await axios.post("/api/university/register", {
+      const res = await axios.post("/api/university/auth/register", {
         universityName: formData.universityName,
         universityEmail: formData.universityEmail,
         contactNumber: formData.contactNumber,

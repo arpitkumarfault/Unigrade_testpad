@@ -1,9 +1,30 @@
-// components/university/dashboard/Header.tsx
+// components/common/Header.tsx
 "use client";
 import { useState } from "react";
 
-export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
+interface HeaderProps {
+  title: string;
+  userRole?: "student" | "teacher" | "admin";
+  onMenuClick: () => void;
+  searchPlaceholder?: string;
+}
+
+export default function Header({
+  title,
+  userRole = "student",
+  onMenuClick,
+  searchPlaceholder = "Search...",
+}: HeaderProps) {
   const [searchVisible, setSearchVisible] = useState(false);
+
+  // Badge style logic based on role
+  const getBadgeColor = () => {
+    switch (userRole) {
+      case "admin": return "var(--color-primary)";
+      case "teacher": return "var(--color-secondary)";
+      default: return "var(--color-tertiary)";
+    }
+  };
 
   return (
     <header
@@ -16,6 +37,9 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
         borderBottom: "1px solid var(--color-border)",
         background: "var(--color-bg)",
         gap: 12,
+        position: "sticky",
+        top: 0,
+        zIndex: 30,
       }}
     >
       {/* Left Section */}
@@ -47,22 +71,26 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
               fontSize: "clamp(16px, 3vw, 20px)",
               fontWeight: 700,
               color: "var(--color-text)",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
           >
-            University Dashboard
+            {title}
           </h1>
           <span
             className="badge hidden sm:inline-flex"
             style={{
-              background: "color-mix(in oklch, var(--color-success), transparent 85%)",
-              color: "var(--color-success)",
+              background: `color-mix(in oklch, ${getBadgeColor()}, transparent 85%)`,
+              color: getBadgeColor(),
               padding: "4px 8px",
               borderRadius: 12,
               fontSize: 11,
               fontWeight: 600,
+              textTransform: "capitalize",
             }}
           >
-            Live
+            {userRole}
           </span>
         </div>
       </div>
@@ -72,7 +100,7 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
         {/* Search - Hidden on very small screens */}
         <div className="hidden sm:block">
           <input
-            placeholder="Search..."
+            placeholder={searchPlaceholder}
             style={{
               background: "var(--color-surface)",
               color: "var(--color-text)",
@@ -106,6 +134,7 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
           🔍
         </button>
 
+        {/* Optional Action Button (e.g., Notifications or New Item) */}
         <button
           className="btn btn-primary"
           style={{
@@ -113,6 +142,10 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
             borderRadius: 8,
             fontWeight: 600,
             fontSize: 14,
+            minWidth: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <span className="hidden sm:inline">New</span>
@@ -136,7 +169,7 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
           }}
         >
           <input
-            placeholder="Search students, courses..."
+            placeholder={searchPlaceholder}
             autoFocus
             style={{
               background: "var(--color-surface)",

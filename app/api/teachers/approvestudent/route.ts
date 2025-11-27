@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     })
 
     existingPendingStudent.isApproved = true
+    existingPendingStudent.isActive = true
 
     if (university && !existingPendingStudent.universityId) {
       existingPendingStudent.universityId = university._id

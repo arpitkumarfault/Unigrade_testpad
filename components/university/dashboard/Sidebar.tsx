@@ -1,26 +1,106 @@
-// components/university/dashboard/Sidebar.tsx
 "use client";
+
+import axios from "axios";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
-const items = [
-  { href: "/university/dashboard", label: "Overview", icon: "📊" },
-  { href: "/university/students", label: "Students", icon: "👥" },
-  { href: "/university/courses", label: "Courses", icon: "📚" },
-  { href: "/university/exams", label: "Exams", icon: "📝" },
-  { href: "/university/faculty", label: "Faculty", icon: "👨‍🏫" },
-  { href: "/university/settings", label: "Settings", icon: "⚙️" },
-];
+interface SidebarProps {
+  onClose?: () => void;
+  userRole: "admin" | "teacher" | "student";
+  userName: string;
+  userEmail: string;
+}
 
-export default function Sidebar({ onClose }: { onClose?: () => void }) {
+const navigationItems = {
+  admin: [
+    { href: "/university/dashboard", label: "Overview", icon: "📊" },
+    { href: "/university/students", label: "Students", icon: "👥" },
+    { href: "/university/courses", label: "Courses", icon: "📚" },
+    { href: "/university/exams", label: "Exams", icon: "📝" },
+    { href: "/university/faculty", label: "Faculty", icon: "👨‍🏫" },
+    { href: "/university/settings", label: "Settings", icon: "⚙️" },
+  ],
+  teacher: [
+    { href: "/teacher/dashboard", label: "Overview", icon: "📊" },
+    { href: "/teacher/dashboard/classroom", label: "My Classes", icon: "📚" },
+    { href: "/teacher/assignments", label: "Assignments", icon: "📝" },
+    { href: "/teacher/tests", label: "Tests", icon: "🧪" },
+    { href: "/teacher/settings", label: "Settings", icon: "⚙️" },
+  ],
+  student: [
+    { href: "/student/dashboard", label: "Overview", icon: "📊" },
+    { href: "/student/classes", label: "My Classes", icon: "📚" },
+    { href: "/student/assignments", label: "Assignments", icon: "📝" },
+    { href: "/student/tests", label: "Tests", icon: "🧪" },
+    { href: "/student/settings", label: "Settings", icon: "⚙️" },
+  ],
+} as const;
+
+// Map each role to its logout API and redirect path
+const logoutConfig: Record<
+  SidebarProps["userRole"],
+  { api: string; redirectTo: string }
+> = {
+  admin: {
+    api: "/api/university/auth/logout",
+    redirectTo: "/universitylogin",
+  },
+  teacher: {
+    api: "/api/teachers/auth/logout",
+    redirectTo: "/teacherlogin",
+  },
+  student: {
+    api: "/api/student/auth/logout",
+    redirectTo: "/studentlogin",
+  },
+};
+
+export default function Sidebar({
+  onClose,
+  userRole,
+  userName,
+  userEmail,
+}: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const toggleTheme = () => {
     const html = document.documentElement;
     html.classList.toggle("dark");
     try {
-      localStorage.setItem("theme", html.classList.contains("dark") ? "dark" : "light");
+      localStorage.setItem(
+        "theme",
+        html.classList.contains("dark") ? "dark" : "light"
+      );
     } catch {}
+  };
+
+  const items = navigationItems[userRole] || [];
+
+  // Dynamic logout handler
+  const handleLogout = async () => {
+    const config = logoutConfig[userRole];
+
+    try {
+      await axios.post(
+        config.api,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // send HttpOnly cookie
+        }
+      );
+      toast.success("Successfully logged out");
+      // Optional: close sidebar on mobile
+      onClose?.();
+      // Redirect to role-specific login
+      router.push(config.redirectTo);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message);
+    }
   };
 
   return (
@@ -43,9 +123,12 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           borderBottom: "1px solid var(--color-border)",
         }}
       >
-        <h2 style={{ fontWeight: 700, fontSize: 20, color: "var(--color-primary)" }}>
+        <h2
+          style={{ fontWeight: 700, fontSize: 20, color: "var(--color-primary)" }}
+        >
           TestPad
         </h2>
+
         <div style={{ display: "flex", gap: 8 }}>
           {/* Theme Toggle */}
           <button
@@ -66,6 +149,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           >
             🌓
           </button>
+
           {/* Close Button (Mobile Only) */}
           <button
             onClick={onClose}
@@ -111,7 +195,9 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                 color: isActive
                   ? "var(--color-primary-contrast)"
                   : "var(--color-text)",
-                border: `1px solid ${isActive ? "transparent" : "var(--color-border)"}`,
+                border: `1px solid ${
+                  isActive ? "transparent" : "var(--color-border)"
+                }`,
                 fontWeight: isActive ? 600 : 500,
                 transition: "all 0.2s ease",
               }}
@@ -148,7 +234,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         <div
           className="badge"
           style={{
-            background: "color-mix(in oklch, var(--color-primary), transparent 85%)",
+            background:
+              "color-mix(in oklch, var(--color-primary), transparent 85%)",
             color: "var(--color-primary)",
             display: "inline-flex",
             padding: "4px 12px",
@@ -157,7 +244,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             fontWeight: 600,
           }}
         >
-          Admin
+          {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
         </div>
         <p
           style={{
@@ -167,7 +254,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             color: "var(--color-text)",
           }}
         >
-          John Doe
+          {userName}
         </p>
         <p
           style={{
@@ -176,7 +263,15 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             color: "var(--color-text-muted)",
           }}
         >
-          admin@univ.edu
+          <a
+            href={`mailto:${userEmail}`}
+            style={{
+              color: "var(--color-text-muted)",
+              textDecoration: "none",
+            }}
+          >
+            {userEmail}
+          </a>
         </p>
         <button
           className="btn btn-primary"
@@ -187,6 +282,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             borderRadius: 8,
             fontWeight: 600,
           }}
+          onClick={handleLogout}
         >
           Logout
         </button>

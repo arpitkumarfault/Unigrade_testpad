@@ -10,7 +10,7 @@ const teacherSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true,  
+      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -24,21 +24,12 @@ const teacherSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
     },
-    // university: [{
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'University',
-    //   required: false,
-    // }],
-    universityCode:{
-      type:String,
-      unique:true,
-      required:false
-    },
-    classroomCode:{
-      type:String,
-      unique:true,
-      required:false
-    },
+
+    classRoom: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Classroom',
+      required: false
+    }],
     department: {
       type: String,
       required: [true, "Department is required"],

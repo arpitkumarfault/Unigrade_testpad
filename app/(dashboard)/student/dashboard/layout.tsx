@@ -10,9 +10,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   // Example user data, replace with auth/user context as needed
   const user = {
-    userRole: "admin",
-    userName: "John Doe",
-    userEmail: "admin@univ.edu",
+    userRole: "student",
+    userName: "anshul kanwar",
+    userEmail: "arpit.kanwar@univ.edu",
   };
 
   return (
@@ -63,12 +63,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className="md:ml-0"
           style={{ width: "100%" }}
         >
-          <Header
-            title="University Dashboard"
-            userRole="admin"
-            onMenuClick={() => setSidebarOpen(true)}
-            searchPlaceholder="Search faculty, students..."
-          />
+            <Header
+  title="My Learning"
+  userRole="student"
+  onMenuClick={() => setSidebarOpen(true)}
+  searchPlaceholder="Search courses..."
+/>
 
           <main style={{ padding: "1rem" }}>{children}</main>
         </div>

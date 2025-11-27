@@ -29,6 +29,12 @@ const studentSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    universityCode:{
+      type:String,
+      unique:true,
+      required:false
+    },
+    
     teacherEmail: {
         type: String,
         required: true,

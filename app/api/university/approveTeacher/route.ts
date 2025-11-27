@@ -10,36 +10,23 @@ export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json()
 
-
     if (!id) {
-      return NextResponse.json(
-        { message: 'Teacher ID is required', status: false }, 
-        { status: 400 }
-      )
+      return NextResponse.json({ message: 'Teacher ID is required', status: false }, { status: 400 })
     }
 
     const existingPendingTeacher = await Teacher.findById(id)
 
-    
-
     if (!existingPendingTeacher) {
-      return NextResponse.json(
-        { message: 'No teacher found with this ID', status: false }, 
-        { status: 404 }
-      )
+      return NextResponse.json({ message: 'No teacher found with this ID', status: false }, { status: 404 })
     }
 
     if (existingPendingTeacher.isApproved) {
-      return NextResponse.json(
-        { message: 'Teacher is already approved', status: false }, 
-        { status: 400 }
-      )
+      return NextResponse.json({ message: 'Teacher is already approved', status: false }, { status: 400 })
     }
 
-    const university = await University.findOne({ 
-      universityEmail: existingPendingTeacher.universityEmail 
+    const university = await University.findOne({
+      universityEmail: existingPendingTeacher.universityEmail,
     })
-
 
     existingPendingTeacher.isApproved = true
 
@@ -49,13 +36,12 @@ export async function POST(req: NextRequest) {
 
     const savedTeacher = await existingPendingTeacher.save({ validateBeforeSave: false })
 
-    
     try {
       await sendTeacherApprovedEmail({
         to: existingPendingTeacher.email,
         teacherName: existingPendingTeacher.name,
         teacherId: existingPendingTeacher._id.toString(),
-        universityCode: university?.universityCode ||  'N/A',
+        universityCode: university?.universityCode || 'N/A',
         department: existingPendingTeacher.department,
       })
     } catch (emailError) {
@@ -68,9 +54,8 @@ export async function POST(req: NextRequest) {
         status: true,
         data: savedTeacher,
       },
-      { status: 200 }
+      { status: 200 },
     )
-
   } catch (error) {
     return NextResponse.json(
       {
@@ -78,7 +63,7 @@ export async function POST(req: NextRequest) {
         status: false,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }
