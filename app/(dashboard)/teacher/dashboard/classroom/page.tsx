@@ -46,8 +46,10 @@ export default function TeacherClassroomPage() {
     try {
       setLoading(true);
       // Adjust URL to match your backend route
-      const res = await axios.get<Classroom[]>("/api/teacher/classrooms");
-      setClassrooms(res.data);
+      const res = await axios.get<Classroom[]>("/api/classroom/gettingclassroom");
+      setClassrooms(res.data.classrooms);
+      console.log("the classroom data >>>",res);
+      
       toast.success("successfuly got your classrooms")
     } catch (error) {
       console.error(error);
@@ -89,10 +91,6 @@ export default function TeacherClassroomPage() {
     universityEmail: string;
     isApproved: boolean;
   }
-
-
-
-
   // Create classroom according to Mongoose model
   const handleCreateClassroom = async (e: React.FormEvent) => {
     e.preventDefault();
