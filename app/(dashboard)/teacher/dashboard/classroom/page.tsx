@@ -48,8 +48,8 @@ export default function TeacherClassroomPage() {
       // Adjust URL to match your backend route
       const res = await axios.get<Classroom[]>("/api/classroom/gettingclassroom");
       setClassrooms(res.data.classrooms);
-      console.log("the classroom data >>>",res);
-      
+      console.log("the classroom data >>>", res);
+
       toast.success("successfuly got your classrooms")
     } catch (error) {
       console.error(error);
@@ -69,8 +69,8 @@ export default function TeacherClassroomPage() {
         return null;
       }
       console.log('the teacher details are >>', res)
-      
-     setTeacherId(res.data.teacher._id)
+
+      setTeacherId(res.data.teacher._id)
       return res.data.teacher as Teacher;
     } catch (err) {
       console.error("fetchTeacherDetails error:", err);
@@ -103,7 +103,7 @@ export default function TeacherClassroomPage() {
         section: newClass.section,
         capacity: newClass.capacity,
         description: newClass.description,
-        teacherId:teacherId
+        teacherId: teacherId
       });
 
       const created = res.data;
